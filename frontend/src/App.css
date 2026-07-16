@@ -1,0 +1,1419 @@
+/* ── ABET Dashboard Styles ─────────────────────────────────────── */
+
+:root {
+  --color-bg: #f0f2f5;
+  --color-header: #1a1a2e;
+  --color-high: #27ae60;
+  --color-mid: #f39c12;
+  --color-low: #e74c3c;
+  --color-na: #bdc3c7;
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--color-bg);
+  color: #333;
+}
+
+/* ── App layout ──────────────────────────────────────────────── */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: var(--color-header);
+  color: #fff;
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.app-header h1 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex: 1;
+  text-align: center;
+}
+
+.header-subtitle {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.5);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.badge-live {
+  background: #27ae60;
+  color: #fff;
+}
+
+.badge-sample {
+  background: #7f8c8d;
+  color: #fff;
+}
+
+.badge-excel {
+  background: #1a5276;
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.course-count {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* ── Dashboard Summary Bar ──────────────────────────────── */
+
+.dashboard-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 12px 28px;
+  background: #fff;
+  border-bottom: 1px solid #e2e6ea;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  flex-wrap: wrap;
+}
+
+.ds-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 22px;
+  border-right: 1px solid #eef0f3;
+  min-width: 90px;
+}
+
+.ds-card:first-child {
+  padding-left: 4px;
+}
+
+.ds-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1.2;
+}
+
+.ds-label {
+  font-size: 0.7rem;
+  color: #95a5a6;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.ds-sublabel {
+  display: block;
+  font-size: 0.62rem;
+  color: #b0b8c1;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.ds-card-high .ds-value { color: #1e8449; }
+.ds-card-mid .ds-value  { color: #b7950b; }
+.ds-card-low .ds-value  { color: #c0392b; }
+
+.ds-card-c1 .ds-value {
+  color: #1a5276;
+}
+
+.ds-card-c2 .ds-value {
+  color: #117864;
+}
+
+.ds-detail {
+  font-size: 0.6rem;
+  color: #b0b8c1;
+  font-weight: 400;
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.ds-divider {
+  width: 0;
+  height: 36px;
+  border-left: 2px dashed #dde1e6;
+  margin: 0 8px;
+}
+
+/* ── Dashboard / AG Grid ─────────────────────────────────────── */
+
+.dashboard {
+  padding: 20px 24px;
+  flex: 1;
+}
+
+.ag-grid-wrapper {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+/* ── AG Grid theme overrides ─────────────────────────────────── */
+
+/* Alpine theme */
+.ag-theme-alpine {
+  --ag-header-height: 60px;
+  --ag-header-background-color: #f5f6fa;
+  --ag-row-hover-color: #eef2ff;
+  --ag-selected-row-background-color: #dbe4ff;
+  --ag-font-size: 13px;
+  --ag-font-family: var(--font);
+  --ag-border-color: #dde1e6;
+  --ag-odd-row-background-color: #fafbfc;
+  --ag-header-column-separator-display: block;
+  --ag-header-column-separator-color: #dde1e6;
+}
+
+/* ── SO header groups ────────────────────────────────────────── */
+
+.so-header {
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  text-align: center !important;
+  justify-content: center !important;
+  padding: 4px 8px !important;
+}
+
+.so-header-SO1 { background: #d6eaf8 !important; color: #1a5276 !important; }
+.so-header-SO2 { background: #d5f5e3 !important; color: #117864 !important; }
+.so-header-SO3 { background: #fcf3cf !important; color: #7d6608 !important; }
+.so-header-SO4 { background: #fadbd8 !important; color: #922b21 !important; }
+.so-header-SO5 { background: #e8daef !important; color: #6c3483 !important; }
+.so-header-SO6 { background: #fdebd0 !important; color: #ca6f1e !important; }
+.so-header-SO7 { background: #d6eaf8 !important; color: #2471a3 !important; }
+
+.so-sub-header {
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  text-align: center !important;
+  justify-content: center !important;
+}
+
+.so-sub-SO1 { background: #ebf5fb !important; }
+.so-sub-SO2 { background: #eafaf1 !important; }
+.so-sub-SO3 { background: #fef9e7 !important; }
+.so-sub-SO4 { background: #fdedec !important; }
+.so-sub-SO5 { background: #f4ecf7 !important; }
+.so-sub-SO6 { background: #fef5e7 !important; }
+.so-sub-SO7 { background: #ebf5fb !important; }
+
+.metric-header {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  text-align: center !important;
+  justify-content: center !important;
+}
+
+.metric-ge3 { background: #fafafa !important; }
+.metric-ge4 { background: #f0f0f0 !important; }
+.metric-eq5 { background: #e8e8e8 !important; }
+
+/* ── Cell coloring ───────────────────────────────────────────── */
+
+.cell-high {
+  background: #d5f5e3 !important;
+  color: #1e8449 !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+}
+
+.cell-mid {
+  background: #fef9e7 !important;
+  color: #7d6608 !important;
+  font-weight: 500 !important;
+  text-align: center !important;
+}
+
+.cell-low {
+  background: #fdedec !important;
+  color: #b03a2e !important;
+  font-weight: 500 !important;
+  text-align: center !important;
+}
+
+.cell-na {
+  background: #f2f3f4 !important;
+  color: #abb2b9 !important;
+  text-align: center !important;
+}
+
+/* ── Loading ─────────────────────────────────────────────────── */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  color: #7f8c8d;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #dde1e6;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Error ───────────────────────────────────────────────────── */
+
+.app-error {
+  max-width: 500px;
+  margin: 80px auto;
+  text-align: center;
+  padding: 32px;
+  background: #fdedec;
+  border: 1px solid #e74c3c;
+  border-radius: 8px;
+}
+
+.app-error h2 {
+  color: #c0392b;
+  margin-bottom: 8px;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-top: 12px;
+}
+
+.hint code {
+  background: #1a1a2e;
+  color: #2ecc71;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.82rem;
+}
+
+.btn-retry {
+  margin-top: 16px;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: var(--font);
+  font-weight: 600;
+}
+
+.btn-retry:hover {
+  background: #2980b9;
+}
+
+/* ── Legend ──────────────────────────────────────────────────── */
+
+.legend {
+  display: flex;
+  gap: 24px;
+  padding: 12px 32px 24px;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.swatch.cell-high { background: #d5f5e3; border: 1px solid #82e0aa; }
+.swatch.cell-mid  { background: #fef9e7; border: 1px solid #f9e79f; }
+.swatch.cell-low  { background: #fdedec; border: 1px solid #f1948a; }
+.swatch.cell-na   { background: #f2f3f4; border: 1px solid #d5d8dc; }
+
+/* ── Export row button ──────────────────────────────────────── */
+
+.export-row-btn {
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font);
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.export-row-btn:hover {
+  background: #1e8449;
+}
+
+/* ── Tab navigation ─────────────────────────────────────────── */
+
+.tab-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.tab-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ccc;
+  padding: 6px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: var(--font);
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.tab-active {
+  background: #fff !important;
+  color: var(--color-header) !important;
+  font-weight: 600;
+  border-color: #fff;
+}
+
+/* ── Program Summary ────────────────────────────────────────── */
+
+.program-summary {
+  padding: 24px 32px;
+}
+
+/* Cycle tabs in program summary */
+.ps-cycle-tabs {
+  padding: 0;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.ps-cycle-info {
+  padding: 0 0 14px 0;
+}
+
+/* ── Cycle compliance KPI cards (Program Summary) ────────── */
+
+.ps-compliance-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.ps-compliance-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 18px;
+  border: 1px solid #e5e8ec;
+  border-radius: 8px;
+  background: #fff;
+  min-width: 110px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.ps-comp-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ps-comp-label {
+  font-size: 0.68rem;
+  color: #5d6d7e;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.ps-comp-detail {
+  font-size: 0.62rem;
+  color: #95a5a6;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.ps-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.ps-topbar h2 {
+  font-size: 1.3rem;
+  color: #1a1a2e;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.btn-export-ps {
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--font);
+  box-shadow: 0 2px 6px rgba(39, 174, 96, 0.3);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-export-ps:hover {
+  background: #1e8449;
+  box-shadow: 0 4px 10px rgba(39, 174, 96, 0.4);
+}
+
+.ps-section {
+  margin-bottom: 40px;
+}
+
+.ps-section h3 {
+  font-size: 1.15rem;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.ps-subtitle {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.ps-note {
+  font-size: 0.78rem;
+  color: #95a5a6;
+  margin-top: 12px;
+  font-style: italic;
+}
+
+/* ── Transposed compliance matrix table ──────────────────── */
+
+.ps-transposed-table {
+  border: 1px solid #dde1e6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  background: #fff;
+}
+
+.ps-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.ps-matrix-table thead th {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 10px 14px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.ps-matrix-table thead th:first-child {
+  text-align: left;
+  padding-left: 20px;
+}
+
+.ps-matrix-table thead th:nth-child(2) {
+  width: 50px;
+}
+
+.ps-matrix-table thead th:nth-child(3),
+.ps-matrix-table thead th:nth-child(4),
+.ps-matrix-table thead th:nth-child(5) {
+  width: 72px;
+}
+
+.ps-matrix-table thead th:nth-child(6) {
+  width: 52px;
+}
+
+.ps-matrix-table tbody tr {
+  transition: background 0.12s;
+}
+
+.ps-matrix-table tbody tr:hover {
+  background: #eef2ff !important;
+}
+
+.ps-matrix-table tbody td {
+  padding: 7px 14px;
+  border-bottom: 1px solid #eef0f3;
+  vertical-align: middle;
+}
+
+/* SO group first row */
+.ps-so-first td {
+  padding-top: 11px;
+}
+
+/* SO cell */
+.ps-so-cell {
+  font-size: 0.82rem;
+  white-space: nowrap;
+  min-width: 200px;
+}
+
+.ps-so-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.ps-so-cell strong {
+  font-size: 0.82rem;
+  color: #1a1a2e;
+}
+
+.ps-so-name-cell {
+  font-size: 0.76rem;
+  color: #7f8c8d;
+  margin-left: 6px;
+  font-style: italic;
+}
+
+/* Indicator cell */
+.ps-ind-cell {
+  text-align: center;
+  font-weight: 700;
+  color: #555;
+  font-size: 0.8rem;
+}
+
+/* Percentage cells */
+.ps-pct-cell {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.ps-pct-cell.cell-high {
+  background: #d5f5e3;
+  color: #1e8449;
+}
+
+.ps-pct-cell.cell-mid {
+  background: #fef9e7;
+  color: #7d6608;
+}
+
+.ps-pct-cell.cell-low {
+  background: #fdedec;
+  color: #b03a2e;
+}
+
+.ps-pct-cell.cell-na {
+  background: #f2f3f4;
+  color: #abb2b9;
+}
+
+/* n cell */
+.ps-n-cell {
+  text-align: center;
+  color: #95a5a6;
+  font-size: 0.78rem;
+}
+
+/* ── SO Indicator Cards Grid ─────────────────────────────────── */
+
+.so-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.so-card {
+  border-radius: 10px;
+  border-top: 5px solid #ccc;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s;
+}
+
+.so-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.so-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 2px;
+}
+
+.so-card-subtitle {
+  font-size: 0.75rem;
+  color: #95a5a6;
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+/* ── Progress bars ───────────────────────────────────────────── */
+
+.so-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.so-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.so-bar-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: 28px;
+  text-align: right;
+  color: #555;
+}
+
+.so-bar-track {
+  flex: 1;
+  height: 22px;
+  background: #e9ecef;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.so-bar-fill {
+  height: 100%;
+  border-radius: 11px;
+  transition: width 0.6s ease;
+  min-width: 0;
+}
+
+.so-bar-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: 52px;
+  text-align: left;
+  color: #333;
+}
+
+.so-card-n {
+  font-size: 0.75rem;
+  color: #95a5a6;
+  margin: 12px 0 6px;
+}
+
+/* ── Sub-outcome details ─────────────────────────────────────── */
+
+.so-sub-details {
+  margin-top: 12px;
+  border-top: 1px solid #dde1e6;
+  padding-top: 8px;
+}
+
+.so-sub-details summary {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+}
+
+.so-sub-detail {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 0.78rem;
+  align-items: center;
+}
+
+.so-sub-code {
+  font-weight: 700;
+  color: #1a1a2e;
+  width: 32px;
+}
+
+.so-sub-n {
+  color: #95a5a6;
+  font-size: 0.72rem;
+  width: 36px;
+}
+
+.so-sub-ge3,
+.so-sub-ge4,
+.so-sub-eq5 {
+  font-weight: 500;
+}
+
+/* ── Program Summary Footer ──────────────────────────────────── */
+
+.ps-footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #95a5a6;
+  padding: 24px 0 12px;
+  border-top: 1px solid #dde1e6;
+  margin-top: 32px;
+}
+
+/* ── Export Modal ───────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 960px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #dde1e6;
+}
+
+.modal-header h2 {
+  font-size: 1.1rem;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #7f8c8d;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #e74c3c;
+}
+
+.modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-hint {
+  font-size: 0.82rem;
+  color: #7f8c8d;
+  margin: 0 0 16px;
+}
+
+.export-notes {
+  margin-bottom: 20px;
+}
+
+.export-notes label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.export-notes textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #dde1e6;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  resize: vertical;
+}
+
+/* ── Export Table ───────────────────────────────────────────── */
+
+.export-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.export-table th {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.78rem;
+  position: sticky;
+  top: 0;
+}
+
+.export-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #dde1e6;
+  vertical-align: middle;
+}
+
+.export-table tr.so-first-row td {
+  border-top: 2px solid #b0bec5;
+}
+
+.export-so-cell {
+  font-weight: 700;
+  color: #1a1a2e;
+  white-space: nowrap;
+}
+
+.export-indicator-cell {
+  text-align: center;
+  font-weight: 600;
+  color: #555;
+}
+
+.export-pct-cell {
+  text-align: center;
+  font-weight: 600;
+}
+
+.export-interp-cell input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #dde1e6;
+  border-radius: 4px;
+  font-family: var(--font);
+  font-size: 0.8rem;
+}
+
+.export-interp-cell input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* ── Modal Footer ───────────────────────────────────────────── */
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 14px 24px;
+  border-top: 1px solid #dde1e6;
+}
+
+.btn-cancel {
+  background: #ecf0f1;
+  color: #555;
+  border: 1px solid #dde1e6;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: var(--font);
+}
+
+.btn-cancel:hover {
+  background: #dde1e6;
+}
+
+.btn-export {
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font);
+}
+
+.btn-export:hover {
+  background: #219a52;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CoursesView — Accordion UI (Program → Course → SOi)
+   ═══════════════════════════════════════════════════════════ */
+
+.courses-view {
+  padding: 20px 28px;
+  flex: 1;
+}
+
+/* ── Program block ───────────────────────────────────── */
+
+.cv-programs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cv-program-block {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  background: #fff;
+  border: 1px solid #e2e6ea;
+}
+
+.cv-program-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: #1a1a2e;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 1.05rem;
+  color: #fff;
+  transition: background 0.15s;
+}
+
+.cv-program-header:hover {
+  background: #25254a;
+}
+
+.cv-program-chevron {
+  font-size: 0.7rem;
+  width: 18px;
+  text-align: center;
+  transition: transform 0.2s;
+  color: rgba(255,255,255,0.7);
+}
+
+.cv-program-name {
+  font-weight: 700;
+  flex: 1;
+  text-align: left;
+}
+
+.cv-program-badge {
+  background: rgba(255,255,255,0.18);
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* ── Course cards within program ─────────────────────── */
+
+.cv-courses {
+  display: flex;
+  flex-direction: column;
+}
+
+.cv-course-card {
+  border-bottom: 1px solid #eef0f3;
+  transition: background 0.12s;
+}
+
+.cv-course-card:last-child {
+  border-bottom: none;
+}
+
+.cv-course-card:hover {
+  background: #fafcfd;
+}
+
+.cv-course-card.cv-course-expanded {
+  background: #f7f9fb;
+}
+
+/* ── Course header ───────────────────────────────────── */
+
+.cv-course-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cv-course-chevron {
+  font-size: 0.65rem;
+  color: #95a5a6;
+  width: 16px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.cv-course-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  flex: 1;
+}
+
+.cv-course-so-count {
+  font-size: 0.72rem;
+  color: #95a5a6;
+  background: #ecf0f1;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.cv-course-export {
+  background: none;
+  border: 1px solid #dde1e6;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.cv-course-export:hover {
+  background: #ebf5fb;
+  border-color: #85c1e9;
+}
+
+/* ── Professor tags ──────────────────────────────────── */
+
+.cv-course-professors {
+  display: flex;
+  gap: 16px;
+  padding: 0 20px 10px 52px;
+  flex-wrap: wrap;
+}
+
+.cv-prof-cycle-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cv-prof-cycle-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #fff;
+  background: #1a5276;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+}
+
+.cv-prof-cycle-label.cv-prof-c2 {
+  background: #117864;
+}
+
+.cv-prof-tag {
+  font-size: 0.75rem;
+  color: #5d6d7e;
+  background: #eef2f7;
+  padding: 2px 10px;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+/* ── SO grid (inside expanded course) ────────────────── */
+
+.cv-so-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+  padding: 0 20px 16px 52px;
+}
+
+.cv-so-card {
+  background: #fff;
+  border: 1px solid #e5e8ec;
+  border-left: 4px solid #333;
+  border-radius: 8px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.cv-so-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.cv-so-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.cv-so-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.cv-so-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Indicator group ─────────────────────────────────── */
+
+.cv-indicator-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px 0;
+  border-top: 1px dashed #eef0f3;
+}
+
+.cv-indicator-group:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.cv-indicator-code {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #7f8c8d;
+  margin-bottom: 2px;
+}
+
+/* ── Mini bars inside indicator ──────────────────────── */
+
+.cv-minibar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cv-minibar-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #888;
+  width: 22px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.cv-minibar-track {
+  flex: 1;
+  height: 16px;
+  background: #eaedf0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cv-minibar-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.5s ease;
+  min-width: 0;
+}
+
+.cv-minibar-value {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #333;
+  width: 40px;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+/* ── Period (Cycle) tabs ──────────────────────────────── */
+
+.cv-period-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 0 52px;
+  margin-bottom: 8px;
+}
+
+.cv-period-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 16px;
+  border: 1px solid #dde1e6;
+  border-radius: 6px;
+  background: #f8f9fa;
+  color: #5d6d7e;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cv-period-tab:hover:not(:disabled) {
+  background: #eef2f7;
+  border-color: #b0bec5;
+}
+
+.cv-period-active {
+  background: #1a1a2e !important;
+  color: #fff !important;
+  border-color: #1a1a2e !important;
+  font-weight: 600;
+}
+
+.cv-period-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.cv-tab-n {
+  font-size: 0.68rem;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.cv-period-active .cv-tab-n {
+  opacity: 0.8;
+}
+
+/* ── Period info bar ───────────────────────────────────── */
+
+.cv-period-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 10px 52px;
+  font-size: 0.78rem;
+  color: #5d6d7e;
+}
+
+.cv-period-cycle-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+.cv-badge-c1 {
+  background: #1a5276;
+}
+
+.cv-badge-c2 {
+  background: #117864;
+}
+
+.cv-period-composition {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+}
+
+.cv-period-composition strong {
+  color: #2c3e50;
+}
+
+/* ── Professor n (student count) ───────────────────────── */
+
+.cv-prof-n {
+  color: #95a5a6;
+  font-weight: 400;
+}
+
+/* ── No data placeholder ────────────────────────────────── */
+
+.cv-no-data {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px;
+  color: #95a5a6;
+  font-size: 0.85rem;
+  font-style: italic;
+}
