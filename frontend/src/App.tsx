@@ -92,7 +92,7 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <h1>ABET Student Outcomes Dashboard</h1>
-        <span className="header-subtitle">Universidad de Ibagué — Systems Engineering</span>
+        <span className="header-subtitle">Universidad de Ibagué — Faculty of Engineering</span>
         <div className="header-right">
           <nav className="tab-nav">
             <button

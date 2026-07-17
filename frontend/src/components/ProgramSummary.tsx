@@ -3,6 +3,20 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { OutcomeDef, ProgramRow, SOSummaryItem, CycleSummary, OverallCompliance } from '../types';
 
+// ── Program name normalisation ───────────────────────────────────────
+
+const PROGRAM_DISPLAY_NAMES: Record<string, string> = {
+  'Civil Eng.': 'Civil Engineering',
+  'Systems Eng.': 'Systems Engineering',
+  'Mechanic Eng.': 'Mechanical Engineering',
+  'Electronic Eng.': 'Electronic Engineering',
+  'Industrial Eng.': 'Industrial Engineering',
+};
+
+function displayProgram(key: string): string {
+  return PROGRAM_DISPLAY_NAMES[key] || key;
+}
+
 // ── Color palette ──────────────────────────────────────────────
 
 const SO_COLORS: Record<number, string> = {
@@ -54,10 +68,16 @@ interface TransposedRow {
 function buildTransposedRows(
   outcomes: OutcomeDef[],
   programData: ProgramRow[],
+  selectedProgram: string | null,
 ): TransposedRow[] {
-  // Merge all program outcomes (normally just one program)
+  // Filter by selected program, or merge all if none selected
+  const filtered = selectedProgram
+    ? programData.filter(p => p.program === selectedProgram)
+    : programData;
+
+  // Merge filtered program outcomes
   const merged: Record<string, { ge3: number; ge4: number; eq5: number; n: number }> = {};
-  for (const prog of programData) {
+  for (const prog of filtered) {
     for (const [code, m] of Object.entries(prog.outcomes)) {
       if (!merged[code]) {
         merged[code] = { ge3: 0, ge4: 0, eq5: 0, n: 0 };
@@ -124,6 +144,7 @@ function generatePDF(
   transposedRows: TransposedRow[],
   outcomes: OutcomeDef[],
   viewLabel?: string,
+  programLabel?: string,
 ) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
@@ -139,7 +160,10 @@ function generatePDF(
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('Systems Eng. — Universidad de Ibagué', pageW / 2, y, { align: 'center' });
+  const progLine = programLabel
+    ? `${programLabel} — Universidad de Ibagué`
+    : 'Faculty of Engineering — Universidad de Ibagué';
+  doc.text(progLine, pageW / 2, y, { align: 'center' });
   y += 5;
   doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageW / 2, y, { align: 'center' });
   y += 10;
@@ -246,26 +270,102 @@ function generatePDF(
     'Prepared by the Planning Office — Dirección de Planeación · Universidad de Ibagué',
     pageW / 2, 288, { align: 'center' }
   );
-  doc.save(`ABET_Program_Summary${viewLabel ? '_' + viewLabel.replace(/\s+/g, '_') : ''}.pdf`);
+  const fileParts = ['ABET_Program_Summary'];
+  if (programLabel) fileParts.push(programLabel.replace(/\s+/g, '_'));
+  if (viewLabel) fileParts.push(viewLabel.replace(/\s+/g, '_'));
+  doc.save(fileParts.join('_') + '.pdf');
 }
 
 // ── Component ──────────────────────────────────────────────────
 
 export default function ProgramSummary({ outcomes, programData, soData, cycleData, overall, loading }: Props) {
   const [view, setView] = useState<ViewId>('aggregated');
+  const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
+
+  // Collect all unique program names
+  const allPrograms = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of programData) set.add(p.program);
+    for (const cycle of [cycleData?.cycle1, cycleData?.cycle2]) {
+      if (cycle) {
+        for (const p of cycle.program_summary) set.add(p.program);
+      }
+    }
+    return Array.from(set).sort();
+  }, [programData, cycleData]);
 
   // Determine which data to show based on active view
-  const activeProgramData = view === 'aggregated'
+  const activeProgramData = (view === 'aggregated'
     ? programData
-    : (cycleData?.[view]?.program_summary || []);
+    : (cycleData?.[view]?.program_summary || [])
+  ).filter(p => !selectedProgram || p.program === selectedProgram);
+
   const activeSOData = view === 'aggregated'
     ? soData
     : (cycleData?.[view]?.so_summary || []);
 
   const transposedRows = useMemo(
-    () => buildTransposedRows(outcomes, activeProgramData),
-    [outcomes, activeProgramData],
+    () => buildTransposedRows(outcomes, activeProgramData, selectedProgram),
+    [outcomes, activeProgramData, selectedProgram],
   );
+
+  // Compute SO card data from filtered program data (when a program is selected)
+  const computedSOData = useMemo((): SOSummaryItem[] => {
+    if (!selectedProgram) return activeSOData;
+    // Build SO summaries from program outcomes
+    const soMap = new Map<number, {
+      so_name: string;
+      scores: number[];
+      sub_outcomes: { code: string; ge3: number; ge4: number; eq5: number; n: number }[];
+    }>();
+
+    for (const so of outcomes) {
+      soMap.set(so.so_number, {
+        so_name: so.so_name,
+        scores: [],
+        sub_outcomes: [],
+      });
+    }
+
+    for (const prog of activeProgramData) {
+      for (const [code, m] of Object.entries(prog.outcomes)) {
+        const soNum = parseInt(code.split('.')[0], 10);
+        let entry = soMap.get(soNum);
+        if (!entry) {
+          entry = { so_name: `Student Outcome ${soNum}`, scores: [], sub_outcomes: [] };
+          soMap.set(soNum, entry);
+        }
+        entry.sub_outcomes.push({ code, ge3: m.ge3, ge4: m.ge4, eq5: m.eq5, n: m.n });
+        // Approximate: add n copies of average score (for stats)
+        const avgScore = (m.ge3 + m.ge4 + m.eq5) / 300 * 5; // rough estimate
+        for (let i = 0; i < m.n; i++) entry.scores.push(avgScore);
+      }
+    }
+
+    return Array.from(soMap.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([soNum, entry]) => {
+        const allScores = entry.scores;
+        const n = allScores.length;
+        // Use sub-outcome averages instead for better accuracy
+        let totalGe3 = 0, totalGe4 = 0, totalEq5 = 0, totalN = 0;
+        for (const sub of entry.sub_outcomes) {
+          totalGe3 += sub.ge3 * sub.n;
+          totalGe4 += sub.ge4 * sub.n;
+          totalEq5 += sub.eq5 * sub.n;
+          totalN += sub.n;
+        }
+        return {
+          so_number: soNum,
+          so_name: entry.so_name,
+          ge3_pct: totalN > 0 ? Math.round(totalGe3 / totalN * 10) / 10 : 0,
+          ge4_pct: totalN > 0 ? Math.round(totalGe4 / totalN * 10) / 10 : 0,
+          eq5_pct: totalN > 0 ? Math.round(totalEq5 / totalN * 10) / 10 : 0,
+          total_records: totalN,
+          sub_outcomes: entry.sub_outcomes,
+        };
+      });
+  }, [activeProgramData, activeSOData, selectedProgram, outcomes]);
 
   if (loading) {
     return (
@@ -279,25 +379,108 @@ export default function ProgramSummary({ outcomes, programData, soData, cycleDat
   const isCycle1Ready = cycleData != null && cycleData.cycle1.so_summary.length > 0;
   const isCycle2Ready = cycleData != null && cycleData.cycle2.so_summary.length > 0;
 
+  // Per-program cycle compliance (computed from filtered program data)
+  const programCompliance = useMemo(() => {
+    let totalN = 0, countGe3 = 0, countGe4 = 0, countEq5 = 0;
+    for (const prog of activeProgramData) {
+      for (const m of Object.values(prog.outcomes)) {
+        totalN += m.n;
+        countGe3 += Math.round(m.ge3 * m.n / 100);
+        countGe4 += Math.round(m.ge4 * m.n / 100);
+        countEq5 += Math.round(m.eq5 * m.n / 100);
+      }
+    }
+    if (totalN === 0) return null;
+    return {
+      total_records: totalN,
+      ge3_pct: Math.round(countGe3 / totalN * 1000) / 10,
+      ge3_count: countGe3,
+      ge4_pct: Math.round(countGe4 / totalN * 1000) / 10,
+      ge4_count: countGe4,
+      eq5_pct: Math.round(countEq5 / totalN * 1000) / 10,
+      eq5_count: countEq5,
+    };
+  }, [activeProgramData]);
+
+  // Use program-specific compliance when a program is selected, otherwise global
+  const activeCompliance = (selectedProgram && programCompliance) ? programCompliance : null;
+
+  // Active record counts for cycle tabs (per-program or global)
+  const activeCycleRecords = useMemo(() => {
+    if (!selectedProgram) {
+      return {
+        aggregated: soData.reduce((s, so) => s + so.total_records, 0),
+        cycle1: cycleData?.cycle1.so_summary.reduce((s, so) => s + so.total_records, 0) || 0,
+        cycle2: cycleData?.cycle2.so_summary.reduce((s, so) => s + so.total_records, 0) || 0,
+      };
+    }
+    // Per-program: count from activeProgramData (already filtered by view and program)
+    let n = 0;
+    for (const prog of activeProgramData) {
+      for (const m of Object.values(prog.outcomes)) n += m.n;
+    }
+    // For cycle tabs we need the unfiltered-by-view counts
+    const allViewData = selectedProgram
+      ? (view === 'aggregated' ? programData : (cycleData?.[view]?.program_summary || []))
+          .filter(p => p.program === selectedProgram)
+      : [];
+    let cycleN = 0;
+    for (const prog of allViewData) {
+      for (const m of Object.values(prog.outcomes)) cycleN += m.n;
+    }
+    return {
+      aggregated: soData.reduce((s, so) => s + so.total_records, 0),  // keep global for 'All'
+      cycle1: view === 'cycle1' ? n : (cycleData?.cycle1.program_summary
+        .filter(p => p.program === selectedProgram)
+        .reduce((s, p) => s + Object.values(p.outcomes).reduce((a, m) => a + m.n, 0), 0) || 0),
+      cycle2: view === 'cycle2' ? n : (cycleData?.cycle2.program_summary
+        .filter(p => p.program === selectedProgram)
+        .reduce((s, p) => s + Object.values(p.outcomes).reduce((a, m) => a + m.n, 0), 0) || 0),
+    };
+  }, [selectedProgram, soData, cycleData, programData, activeProgramData, view]);
+
+  const programDisplayLabel = selectedProgram ? displayProgram(selectedProgram) : null;
+
   return (
     <div className="program-summary">
       {/* Header */}
       <div className="ps-topbar">
-        <h2>Program Summary — Systems Eng.</h2>
+        <h2>Program Summary{programDisplayLabel ? ` — ${programDisplayLabel}` : ''}</h2>
         <button
           className="btn-export-ps"
-          onClick={() => generatePDF(activeSOData, transposedRows, outcomes, VIEW_LABELS[view])}
+          onClick={() => generatePDF(computedSOData, transposedRows, outcomes, VIEW_LABELS[view], programDisplayLabel || undefined)}
         >
           📄 Download PDF
         </button>
       </div>
 
+      {/* Program selector */}
+      {allPrograms.length > 1 && (
+        <div className="cv-period-tabs ps-program-tabs">
+          <button
+            className={`cv-period-tab ${selectedProgram === null ? 'cv-period-active' : ''}`}
+            onClick={() => setSelectedProgram(null)}
+          >
+            🎓 All Programs
+          </button>
+          {allPrograms.map(prog => (
+            <button
+              key={prog}
+              className={`cv-period-tab ${selectedProgram === prog ? 'cv-period-active' : ''}`}
+              onClick={() => setSelectedProgram(prog)}
+            >
+              {displayProgram(prog)}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Cycle tabs */}
       <div className="cv-period-tabs ps-cycle-tabs">
         {([
-          { id: 'aggregated' as ViewId, label: 'All', enabled: true, records: soData.reduce((s, so) => s + so.total_records, 0) },
-          { id: 'cycle1' as ViewId, label: 'Cycle 1', enabled: isCycle1Ready, records: cycleData?.cycle1.so_summary.reduce((s, so) => s + so.total_records, 0) || 0 },
-          { id: 'cycle2' as ViewId, label: 'Cycle 2', enabled: isCycle2Ready, records: cycleData?.cycle2.so_summary.reduce((s, so) => s + so.total_records, 0) || 0 },
+          { id: 'aggregated' as ViewId, label: 'All', enabled: true, records: activeCycleRecords.aggregated },
+          { id: 'cycle1' as ViewId, label: 'Cycle 1', enabled: isCycle1Ready, records: activeCycleRecords.cycle1 },
+          { id: 'cycle2' as ViewId, label: 'Cycle 2', enabled: isCycle2Ready, records: activeCycleRecords.cycle2 },
         ] as const).map((tab) => (
           <button
             key={tab.id}
@@ -314,18 +497,19 @@ export default function ProgramSummary({ outcomes, programData, soData, cycleDat
         ))}
       </div>
 
-      {/* Cycle compliance KPI cards */}
-      {view !== 'aggregated' && overall && (
+      {/* Cycle compliance KPI cards — program-specific when filtered, global otherwise */}
+      {view !== 'aggregated' && (overall || activeCompliance) && (
         <div className="ps-compliance-row">
           <span className={`cv-period-cycle-badge ${view === 'cycle1' ? 'cv-badge-c1' : 'cv-badge-c2'}`}>
-            {VIEW_LABELS[view]}
+            {VIEW_LABELS[view]}{selectedProgram ? ` — ${programDisplayLabel}` : ''}
           </span>
           {(['ge3', 'ge4', 'eq5'] as const).map((metric) => {
-            const c = overall[view];
+            const c = activeCompliance || overall![view];
             const labels: Record<string, string> = { ge3: 'Meet ≥ 3', ge4: 'Meet ≥ 4', eq5: 'Meet = 5' };
             const colors: Record<string, string> = { ge3: '#1e8449', ge4: '#b7950b', eq5: '#c0392b' };
             const pct = c[`${metric}_pct` as keyof typeof c] as number;
             const count = c[`${metric}_count` as keyof typeof c] as number;
+            const total = c.total_records as number;
             return (
               <div key={metric} className="ps-compliance-card">
                 <span className="ps-comp-value" style={{ color: colors[metric] }}>
@@ -333,7 +517,7 @@ export default function ProgramSummary({ outcomes, programData, soData, cycleDat
                 </span>
                 <span className="ps-comp-label">{labels[metric]}</span>
                 <span className="ps-comp-detail">
-                  {count.toLocaleString()} de {c.total_records.toLocaleString()} registros
+                  {count.toLocaleString()} de {total.toLocaleString()} registros
                 </span>
               </div>
             );
@@ -418,11 +602,11 @@ export default function ProgramSummary({ outcomes, programData, soData, cycleDat
           Students by Indicator
           {view !== 'aggregated' ? ` — ${VIEW_LABELS[view]}` : ' — All Courses Combined'}
         </h3>
-        {activeSOData.length === 0 ? (
+        {computedSOData.length === 0 ? (
           <div className="cv-no-data">No data available for this view</div>
         ) : (
           <div className="so-cards-grid">
-            {activeSOData.map((so) => {
+            {computedSOData.map((so) => {
               const barColor = SO_COLORS[so.so_number] || '#333';
               return (
                 <div
@@ -443,6 +627,15 @@ export default function ProgramSummary({ outcomes, programData, soData, cycleDat
                     <Bar pct={so.eq5_pct} color="#e74c3c" label="=5" />
                   </div>
                   <p className="so-card-n">Total records: {so.total_records}</p>
+                  {so.sub_outcomes.length > 0 && (
+                    <div className="so-sub-detail">
+                      {so.sub_outcomes.map(sub => (
+                        <span key={sub.code} className="so-sub-chip">
+                          {sub.code}: ≥3 {sub.ge3}% | ≥4 {sub.ge4}% | =5 {sub.eq5}%
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}

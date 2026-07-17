@@ -7,7 +7,7 @@ import logging
 from collections import defaultdict
 from pathlib import Path
 
-from loader import parse_file, normalise_course_name, normalise_professor, compute_percentages
+from loader import parse_file, normalise_course_name, normalise_professor, compute_percentages, extract_path_info
 from models import MetricSet
 
 logger = logging.getLogger(__name__)
@@ -52,9 +52,8 @@ def collect_all_scores(data_dir: str = "data") -> dict:
         semester = parsed["semester"]
         cycles.add(semester)
 
-        # Determine program from path context (Cycle 1 ~ 2024B/2025A, Cycle 2 ~ 2026A)
-        # All courses are Systems Eng. for now
-        program = "Systems Eng."
+        # Determine program from path structure
+        _, program, _ = extract_path_info(str(xlsx_path))
         programs.add(program)
 
         scores = parsed["scores"]
@@ -150,7 +149,8 @@ def compute_cycle_summaries(data_dir: str = "data") -> dict:
         if not cycle:
             continue
 
-        program = "Systems Eng."
+        # Derive program from path structure
+        _, program, _ = extract_path_info(str(xlsx_path))
         scores = parsed["scores"]
 
         for student_id, so_scores in scores.items():
@@ -284,10 +284,11 @@ def compute_overall_compliance(data_dir: str = "data") -> dict:
         except Exception:
             continue
         cname = parsed["course"]
-        semester = parsed["semester"]
-        cycle = CYCLE_MAP.get(semester)
+        _, program, semester = extract_path_info(str(xlsx_path))
+        # Use a tuple (course, program) as the unique course identity
         if cname and parsed.get("scores"):
-            active_courses.add(cname)
+            active_courses.add((cname, program))
+        cycle = CYCLE_MAP.get(semester)
         if cycle:
             for student_scores in parsed["scores"].values():
                 for score in student_scores.values():

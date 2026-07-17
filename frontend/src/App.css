@@ -444,6 +444,13 @@ body {
   padding: 24px 32px;
 }
 
+/* Program tabs in program summary */
+.ps-program-tabs {
+  padding: 0;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
 /* Cycle tabs in program summary */
 .ps-cycle-tabs {
   padding: 0;
@@ -795,10 +802,21 @@ body {
 
 .so-sub-detail {
   display: flex;
-  gap: 12px;
-  padding: 4px 0;
-  font-size: 0.78rem;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0 2px;
+  font-size: 0.7rem;
+  align-items: flex-start;
+}
+
+.so-sub-chip {
+  background: #eef2f7;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  color: #5d6d7e;
+  white-space: nowrap;
+  font-weight: 500;
 }
 
 .so-sub-code {
