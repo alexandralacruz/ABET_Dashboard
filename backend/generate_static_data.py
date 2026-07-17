@@ -16,12 +16,60 @@ from program_summary import (
     compute_cycle_summaries,
     compute_overall_compliance,
 )
-from main import (
-    course_rows_to_dict,
-    get_all_sub_outcome_codes,
+from models import (
+    MetricSet,
+    CourseRow,
     OUTCOME_DEFINITIONS,
     METRIC_LABELS,
+    ALL_SUB_OUTCOME_CODES,
 )
+
+
+def course_rows_to_dict(courses: list[CourseRow]) -> list[dict]:
+    """Convert CourseRow list to JSON-serializable list of dicts."""
+    result = []
+    for c in courses:
+        d = {
+            "course": c.course,
+            "program": c.program,
+            "professor_2024b": c.professor_2024b,
+            "professor_2025a": c.professor_2025a,
+            "professor_2026a": c.professor_2026a,
+            "outcomes": {},
+            "periods": {},
+        }
+        for code, ms in c.outcomes.items():
+            d["outcomes"][code] = {
+                "ge3": ms.ge3,
+                "ge4": ms.ge4,
+                "eq5": ms.eq5,
+            }
+        for sem, period in c.periods.items():
+            period_outcomes = {}
+            for code, ms in period.outcomes.items():
+                period_outcomes[code] = {
+                    "ge3": ms.ge3,
+                    "ge4": ms.ge4,
+                    "eq5": ms.eq5,
+                }
+            d["periods"][sem] = {
+                "semester": period.semester,
+                "cycle": period.cycle,
+                "professor": period.professor,
+                "student_count": period.student_count,
+                "outcomes": period_outcomes,
+            }
+        result.append(d)
+    return result
+
+
+def get_all_sub_outcome_codes(courses: list[CourseRow] | None = None) -> list[str]:
+    """Return all unique SO sub-outcome codes."""
+    codes = set(ALL_SUB_OUTCOME_CODES)
+    if courses:
+        for c in courses:
+            codes.update(c.outcomes.keys())
+    return sorted(codes, key=lambda c: (int(c.split(".")[0]), int(c.split(".")[1])))
 
 OUTPUT_DIR = Path(__file__).parent.parent / "frontend" / "public" / "data"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
