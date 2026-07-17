@@ -7,45 +7,48 @@ import type {
   OverallCompliance,
 } from './types';
 
-const BASE = '/api';
+const API_BASE = '/api';
+const STATIC_BASE = '/data';
+
+// Try backend first, fall back to static JSON files (for GitHub Pages)
+async function fetchAPI<T>(endpoint: string): Promise<T> {
+  // Try the backend API first
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`);
+    if (res.ok) return res.json();
+  } catch {
+    // Backend not available, fall through to static
+  }
+  // Fall back to static JSON
+  const res = await fetch(`${STATIC_BASE}${endpoint}.json`);
+  if (!res.ok) throw new Error(`Failed to load static data: ${endpoint}`);
+  return res.json();
+}
 
 export async function fetchStructure(): Promise<StructureResponse> {
-  const res = await fetch(`${BASE}/structure`);
-  if (!res.ok) throw new Error(`Failed to fetch structure: ${res.statusText}`);
-  return res.json();
+  return fetchAPI<StructureResponse>('/structure');
 }
 
 export async function fetchCourses(): Promise<CoursesResponse> {
-  const res = await fetch(`${BASE}/courses`);
-  if (!res.ok) throw new Error(`Failed to fetch courses: ${res.statusText}`);
-  return res.json();
+  return fetchAPI<CoursesResponse>('/courses');
 }
 
 export async function fetchHealth(): Promise<{ status: string; source: string; courses_loaded: number }> {
-  const res = await fetch(`${BASE}/health`);
-  return res.json();
+  return fetchAPI('/health');
 }
 
 export async function fetchProgramSummary(): Promise<ProgramSummaryResponse> {
-  const res = await fetch(`${BASE}/program-summary`);
-  if (!res.ok) throw new Error(`Failed to fetch program summary: ${res.statusText}`);
-  return res.json();
+  return fetchAPI<ProgramSummaryResponse>('/program-summary');
 }
 
 export async function fetchSOSummary(): Promise<SOSummaryResponse> {
-  const res = await fetch(`${BASE}/so-summary`);
-  if (!res.ok) throw new Error(`Failed to fetch SO summary: ${res.statusText}`);
-  return res.json();
+  return fetchAPI<SOSummaryResponse>('/so-summary');
 }
 
 export async function fetchCycleSummary(): Promise<CycleSummaryResponse> {
-  const res = await fetch(`${BASE}/cycle-summary`);
-  if (!res.ok) throw new Error(`Failed to fetch cycle summary: ${res.statusText}`);
-  return res.json();
+  return fetchAPI<CycleSummaryResponse>('/cycle-summary');
 }
 
 export async function fetchOverallCompliance(): Promise<OverallCompliance> {
-  const res = await fetch(`${BASE}/overall-compliance`);
-  if (!res.ok) throw new Error(`Failed to fetch overall compliance: ${res.statusText}`);
-  return res.json();
+  return fetchAPI<OverallCompliance>('/overall-compliance');
 }

@@ -399,6 +399,13 @@ def parse_cycle2_file(path: str) -> dict:
     scores: dict[str, dict[str, float]] = defaultdict(dict)
 
     for row_idx in range(header_row_num + 1, ws.max_row + 1):
+        row_vals = [ws.cell(row=row_idx, column=c + 1).value for c in range(len(raw_headers))]
+
+        student_id = _parse_student_id(row_vals[col_student]) if col_student is not None else None
+        if student_id is None or student_id == '0':
+            continue
+
+        if col_course is not None and row_vals[col_course]:
             course_name = normalise_course_name(str(row_vals[col_course]))
 
         if col_prof is not None and row_vals[col_prof]:

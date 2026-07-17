@@ -142,7 +142,7 @@ function Bar({ pct, color, label }: { pct: number; color: string; label: string 
 function generatePDF(
   soData: SOSummaryItem[],
   transposedRows: TransposedRow[],
-  outcomes: OutcomeDef[],
+  _outcomes: OutcomeDef[],
   viewLabel?: string,
   programLabel?: string,
 ) {
@@ -345,9 +345,7 @@ export default function ProgramSummary({ outcomes, programData, soData, cycleDat
     return Array.from(soMap.entries())
       .sort(([a], [b]) => a - b)
       .map(([soNum, entry]) => {
-        const allScores = entry.scores;
-        const n = allScores.length;
-        // Use sub-outcome averages instead for better accuracy
+        // Use sub-outcome averages for accuracy
         let totalGe3 = 0, totalGe4 = 0, totalEq5 = 0, totalN = 0;
         for (const sub of entry.sub_outcomes) {
           totalGe3 += sub.ge3 * sub.n;

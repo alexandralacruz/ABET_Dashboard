@@ -24,7 +24,6 @@ interface ExportRow {
 function buildExportRows(course: CourseRow, outcomes: OutcomeDef[]): ExportRow[] {
   const rows: ExportRow[] = [];
   for (const so of outcomes) {
-    let first = true;
     for (const sub of so.sub_outcomes) {
       const metrics = course.outcomes[sub.code];
       const pct = metrics?.ge3 ?? null;
@@ -35,7 +34,6 @@ function buildExportRows(course: CourseRow, outcomes: OutcomeDef[]): ExportRow[]
         pct,
         interpretation: '',
       });
-      first = false;
     }
   }
   return rows;
