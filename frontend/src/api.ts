@@ -8,7 +8,8 @@ import type {
 } from './types';
 
 const API_BASE = '/api';
-const STATIC_BASE = '/data';
+// Use Vite's base URL so it works in dev (/) and GitHub Pages (/ABET_Dashboard/)
+const STATIC_BASE = `${import.meta.env.BASE_URL}data`;
 
 // Try backend first, fall back to static JSON files (for GitHub Pages)
 async function fetchAPI<T>(endpoint: string): Promise<T> {
@@ -20,7 +21,8 @@ async function fetchAPI<T>(endpoint: string): Promise<T> {
     // Backend not available, fall through to static
   }
   // Fall back to static JSON
-  const res = await fetch(`${STATIC_BASE}${endpoint}.json`);
+  const url = `${STATIC_BASE}${endpoint}.json`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to load static data: ${endpoint}`);
   return res.json();
 }
